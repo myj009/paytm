@@ -83,7 +83,7 @@ userRouter.post("/signin", async (req, res) => {
     password: result.data.password,
   });
   if (!foundUser) {
-    return res.status(411).json({ message: "Error while logging in" });
+    return res.status(411).json({ message: "Incorrect username or password" });
   }
 
   const token = jwt.sign({ userId: foundUser._id.toString() }, JWT_SECRET);

@@ -1,3 +1,13 @@
 FROM mongo:4.4.7
-RUN echo "rs.initiate();" > /docker-entrypoint-initdb.d/replica-init.js
-CMD [ "--replSet", "rs" ]
+
+# Create directories for MongoDB data and logs
+RUN mkdir -p /data/db /data/configdb
+
+# Copy the MongoDB configuration file
+COPY mongod.conf /etc/mongod.conf
+
+# Expose ports
+EXPOSE 27017
+
+# Command to run MongoDB with replica set configuration
+CMD ["mongod", "--config", "/etc/mongod.conf", "--replSet", "rs0"]

@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 
-mongoose.connect("mongodb://localhost:27017/paytm");
+export const MONGOURI = "mongodb://localhost:27017/paytm";
 
+mongoose.connect(MONGOURI);
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
