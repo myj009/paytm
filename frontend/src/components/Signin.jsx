@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
+import { BASE_URI } from "../App";
 
 const Signup = () => {
   const {
@@ -14,7 +15,7 @@ const Signup = () => {
   const onSubmit = async (data) => {
     console.log(data);
     try {
-      const res = await axios.post("http://localhost:3000/api/v1/user/signin", {
+      const res = await axios.post(`${BASE_URI}/user/signin`, {
         username: data.email,
         password: data.password,
       });
@@ -24,6 +25,7 @@ const Signup = () => {
       }
 
       console.log(res.data.token);
+      localStorage.setItem("userToken", res.data.token);
       navigate("/dashboard");
     } catch (e) {
       console.log(e);

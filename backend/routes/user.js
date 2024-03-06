@@ -111,15 +111,20 @@ userRouter.put("/", authMiddleware, async (req, res) => {
 });
 
 userRouter.get("/bulk", authMiddleware, async (req, res) => {
+  console.log(req.query.filter);
   const filter = req.query.filter;
 
+  console.log(filter);
+
   try {
-    const users = await User.find({
-      $or: [
-        { firstName: { $regex: filter } },
-        { lastName: { $regex: filter } },
-      ],
-    });
+    const users = filter
+      ? await User.find({
+          $or: [
+            { firstName: { $regex: filter } },
+            { lastName: { $regex: filter } },
+          ],
+        })
+      : await User.find();
 
     return res.json(
       users.map((user) => ({
@@ -134,6 +139,23 @@ userRouter.get("/bulk", authMiddleware, async (req, res) => {
       message: "Error in db",
       error: e,
     });
+  }
+});
+
+userRouter.get("/:id", authMiddleware, async (req, res) => {
+  const user = req.params.id;
+
+  try {
+    const userInfo = await User.findById(user);
+    return res.json({
+      username: userInfo.username,
+      firstName: userInfo.firstName,
+      lastName: userInfo.lastName,
+      _id: userInfo._id,
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ message: "Unexpected error", error: e });
   }
 });
 

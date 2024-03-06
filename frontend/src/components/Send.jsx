@@ -1,6 +1,46 @@
-/* eslint-disable react/prop-types */
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import { BASE_URI } from "../App";
+import { useState } from "react";
 
-const Send = ({ firstName, lastName }) => {
+const Send = () => {
+  const { to } = useParams();
+
+  const [amount, setAmount] = useState(0);
+
+  const userQuery = useQuery({
+    queryKey: ["userData"],
+    queryFn: () =>
+      axios.get(`${BASE_URI}/user/${to}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+        },
+      }),
+  });
+
+  if (userQuery.error) {
+    console.log(to);
+    console.log(userQuery.error);
+  }
+
+  const transferAmount = () => {
+    console.log(amount);
+
+    axios.post(
+      `${BASE_URI}/account/transfer`,
+      {
+        to: userQuery.data.data._id,
+        amount,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+        },
+      }
+    );
+  };
+
   return (
     <div className="flex h-full w-full justify-center items-center">
       <div className="bg-white p-8 flex flex-col rounded-lg min-w-[500px]">
@@ -12,7 +52,7 @@ const Send = ({ firstName, lastName }) => {
             UB
           </div>
           <div className="text-xl font-bold">
-            {firstName} {lastName}
+            {userQuery.isPending ? "" : userQuery.data.data.firstName}
           </div>
         </div>
         <div className="text-lg font-bold pt-4 pb-2">Amount</div>
@@ -21,9 +61,14 @@ const Send = ({ firstName, lastName }) => {
             type="number"
             className="w-full px-2 py-2 border border-gray-200 rounded-lg"
             placeholder="Enter Amount"
+            onChange={(e) => setAmount(e.target.value)}
           />
         </div>
-        <button className="flex items-center mt-4 rounded-lg text-white justify-center py-3 bg-green-500">
+        <button
+          onClick={transferAmount}
+          className="flex items-center mt-4 rounded-lg text-white justify-center py-3 bg-green-500"
+          disabled={amount == "" || amount == 0}
+        >
           Initiate Transfer
         </button>
       </div>
